@@ -1,0 +1,25 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model usuario {
+  id Int @id @default(autoincrement())
+  nome String
+  senha String?
+  email String @unique
+  idade Int
+  pedidos pedidos[]
+}
+// ? indica que um campo não é obrigatório
+
+model pedidos {
+  id Int @id @default(autoincrement())
+  produto String
+  usuarioId Int
+  
+  usuario usuario @relation(fields: [usuarioId], references: [id])
+}
