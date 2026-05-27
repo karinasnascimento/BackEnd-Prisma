@@ -1,15 +1,22 @@
 const prisma = require("../data/prisma.js");
 
 const listar = async (req, res) => {
-    //no db usuários-> traga todos 
-    const lista = await prisma.usuario.findMany()
+                            //no db usuários-> traga todos 
+    try {const lista = await prisma.usuario.findMany()
+       res.status(200).json(lista).end(); 
 
-    res.status(200).json(lista).end();
+    } catch (error) {
+         console.error("Erro ao listar usuários:", error);
 
+        return res.status(500).json({ 
+            error: "Não foi possível buscar a lista de usuários."
+        });
+    }
 }
 
 const cadastrar = async (req, res) => {
-    const { nome, email, idade, senha } = req.body;
+    
+    try {const { nome, email, idade, senha } = req.body;
 
     const item = await prisma.usuario.create({
         data: {
@@ -19,24 +26,39 @@ const cadastrar = async (req, res) => {
             email
         }
     })
+    res.status(201).json(item).end();
 
-    res.json(item).status(201).end();
+    } catch (error) {
+         console.error("Erro ao cadastrar usuário:", error);
+
+        return res.status(500).json({ 
+            error: "Não foi possível cadastrar usuário."
+        });
+    }
 }
 
 const deletar = async (req, res) => {
-    const { id } = req.params;
+    
+    try {const { id } = req.params;
 
     const excluir = await prisma.usuario.delete({
         where: {
             id: Number(id)
         }
     });
-
     res.status(200).json(excluir);
+
+    } catch (error) {
+         console.error("Erro ao deletar usuário:", error);
+
+        return res.status(500).json({ 
+            error: "Não foi possível deletar usuário."
+        });
+    }
 }
 
 const listarPorId = async (req, res) => {
-    const { id } = req.params;
+    try {const { id } = req.params;
 
     const lista = await prisma.usuario.findUnique({
         where: {
@@ -44,12 +66,24 @@ const listarPorId = async (req, res) => {
         }
     })
 
-    res.status(200).json(lista);
+    if (!lista) {
+            return res.status(404).json({ error: "Usuário não encontrado." });
+        }
+
+        res.status(200).json(lista);
+
+    } catch (error) {
+         console.error("Erro ao listar usuário por ID:", error);
+
+        return res.status(500).json({ 
+            error: "Não foi possível listar usuário por ID."
+        });
+    }
 }
 
 const atualizar = async (req, res) => {
 
-    const { id } = req.params;
+    try {const { id } = req.params;
 
     const { nome, email, idade, senha } = req.body;
 
@@ -64,8 +98,15 @@ const atualizar = async (req, res) => {
             email
         }
     })
+    res.status(200).json(item);
 
-    res.json(item).status(201);
+    } catch (error) {
+         console.error("Erro ao atualizar usuário:", error);
+
+        return res.status(500).json({ 
+            error: "Não foi possível atualizar usuário."
+        });
+    }
 }
 
 module.exports = {

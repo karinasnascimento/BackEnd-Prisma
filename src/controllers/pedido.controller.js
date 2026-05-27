@@ -1,14 +1,23 @@
 const prisma = require("../data/prisma.js");
 
 const listar = async (req, res) => {
-    const lista = await prisma.pedidos.findMany()
+    
+    try {const lista = await prisma.pedidos.findMany()
 
     res.status(200).json(lista).end();
 
+    } catch (error) {
+         console.error("Erro ao listar pedidos:", error);
+
+        return res.status(500).json({ 
+            error: "Não foi possível listar pedidos."
+        });
+    }
 }
 
 const cadastrar = async (req, res) => {
-    const { produto, usuarioId } = req.body;
+    
+    try {const { produto, usuarioId } = req.body;
 
     const item = await prisma.pedidos.create({
         data: {
@@ -16,24 +25,40 @@ const cadastrar = async (req, res) => {
             usuarioId
         }
     })
+    res.status(201).json(item).end();
 
-    res.json(item).status(201).end();
+    } catch (error) {
+         console.error("Erro ao cadastrar pedido:", error);
+
+        return res.status(500).json({ 
+            error: "Não foi possível cadastrar pedido."
+        });
+    }
 }
 
 const deletar = async (req, res) => {
-    const { id } = req.params;
+    
+    try {const { id } = req.params;
 
     const excluir = await prisma.pedidos.delete({
         where: {
             id: Number(id)
         }
     });
-
     res.status(200).json(excluir);
+
+    } catch (error) {
+         console.error("Erro ao deletar pedido:", error);
+
+        return res.status(500).json({ 
+            error: "Não foi possível deletar pedido."
+        });
+    }
 }
 
 const listarPorId = async (req, res) => {
-    const { id } = req.params;
+    
+    try {const { id } = req.params;
 
     const lista = await prisma.pedidos.findUnique({
         where: {
@@ -41,12 +66,24 @@ const listarPorId = async (req, res) => {
         }
     })
 
-    res.status(200).json(lista);
+    if (!lista) {
+            return res.status(404).json({ error: "Pedido não encontrado." });
+        }
+
+        res.status(200).json(lista);
+
+    } catch (error) {
+         console.error("Erro ao listar pedido por ID:", error);
+
+        return res.status(500).json({ 
+            error: "Não foi possível listar pedido por ID."
+        });
+    }
 }
 
 const atualizar = async (req, res) => {
 
-    const { id } = req.params;
+    try {const { id } = req.params;
 
     const { produto, usuarioId } = req.body;
 
@@ -59,8 +96,15 @@ const atualizar = async (req, res) => {
             usuarioId
         }
     })
+    res.status(200).json(item);
 
-    res.json(item).status(201);
+    } catch (error) {
+         console.error("Erro ao atualizar pedido:", error);
+
+        return res.status(500).json({ 
+            error: "Não foi possível atualizar pedido."
+        });
+    }
 }
 
 module.exports = {
